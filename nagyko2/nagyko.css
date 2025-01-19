@@ -43,6 +43,7 @@ form{
     width: 100%;
     font-size: 1.2rem;
     border: 0;
+    color: #fff ;
 }
 
 th{
@@ -67,4 +68,8 @@ td{
 #reminderButton{
     font-size: 1rem;
     margin-left: 5%;
+}
+
+.whiteText{
+    color: #fff;
 }

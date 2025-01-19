@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ütés számitás</title>
+</head>
+<body>
+    <div id="para">
+        
+    </div>
+
+    <script>
+        let metinHP;
+        
+        metinHP = 8000000;
+
+        let i = 1;
+
+        let para = document.getElementById('para');
+
+        let parainner;
+
+        while(i <= 12){
+            
+            parainner += `<p>${Math.ceil(metinHP/i)}</p>`
+            console.log(Math.ceil(metinHP/i), i);
+
+            i++;
+        }
+
+        para.innerHTML = parainner;
+        
+
+
+
+    </script>
+</body>
+</html>
