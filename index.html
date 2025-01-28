@@ -14,9 +14,14 @@
       src="https://kit.fontawesome.com/29027300e9.js"
       crossorigin="anonymous"
     ></script>
-    <link rel="stylesheet" href="./nagyko.css" />
+    <link rel="stylesheet" href="nagyko.css" />
   </head>
   <body>
+    <div id="bossSpawn">
+      Következő boss spawn:
+      <p class="bossTimer" id="nextBoss">test2</p>
+      <p class="bossTimer" id="bossTimer">test</p>
+    </div>
     <div class="nagykoDiv">
       <form>
         <div>
@@ -26,7 +31,7 @@
           <input type="time" id="startTime" class="form-control formitem" />
         </div>
         <div>
-          <label for="alertTime" class="form-labe formitem"
+          <label for="alertTime" class="form-label formitem"
             >Hány perccel spawn előtt legyen emlékeztető?(katt)</label
           >
           <select name="alertTime" id="alertTime" class="form-control formitem">
@@ -79,6 +84,7 @@
         </table>
       </div>
     </div>
+
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
@@ -91,6 +97,9 @@
     ></script>
 
     <script>
+      const bossSpawnHours = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24];
+      const bossTimerDisplay = document.getElementById("bossTimer");
+      const nextBossDisplay = document.getElementById("nextBoss");
       const startTime = document.getElementById("startTime");
 
       var nextSpawnTable = $("#nextSpawnTable");
@@ -244,30 +253,119 @@
               }, 3000);
               audio.play();
             }
-          //   if (remainingTimeStone(i) == 5 && wantReminder == true) {
-          //     var request = new XMLHttpRequest();
-          //     request.open(
-          //       "POST",
-          //       "https://discord.com/api/webhooks/1330985056239358004/rwJdnzLcjcAXzl6af8FgGkrUNDyt9Fn-nmxwBvc6XHzIFagaZ4SdFKn7F0x4IB5Tjh0w"
-          //     );
+            //   if (remainingTimeStone(i) == 5 && wantReminder == true) {
+            //     var request = new XMLHttpRequest();
+            //     request.open(
+            //       "POST",
+            //       "https://discord.com/api/webhooks/1330985056239358004/rwJdnzLcjcAXzl6af8FgGkrUNDyt9Fn-nmxwBvc6XHzIFagaZ4SdFKn7F0x4IB5Tjh0w"
+            //     );
 
-          //     request.setRequestHeader("Content-type", "application/json");
+            //     request.setRequestHeader("Content-type", "application/json");
 
-          //     var params = {
-          //       username: "Nagyko",
-          //       avatar_url: "",
-          //       content: "5 perc nagyko halou",
-          //     };
+            //     var params = {
+            //       username: "Nagyko",
+            //       avatar_url: "",
+            //       content: "5 perc nagyko halou",
+            //     };
 
-          //     request.send(JSON.stringify(params))
-          //   }                                discord webhook proba - kell hozza live server hogy mukodjon normalisan
-          }                              
+            //     request.send(JSON.stringify(params))
+            //   }                                discord webhook proba - kell hozza live server hogy mukodjon normalisan
+          }
         }
+      }
+
+      function bossTimers() {
+        // kiirjuk boss spawnokat
+        let currentDate = new Date();
+        let currentHour = parseInt(currentDate.getHours());
+        let currentMinute = parseInt(currentDate.getMinutes());
+        let currentSeconds = parseInt(currentDate.getSeconds());
+        let offset = parseInt(currentDate.getTimezoneOffset()) / 60;
+        let currentHourInUTC = currentHour + offset; // áttesszük universalba az időt
+        console.log(currentHourInUTC + ":" + currentMinute);
+        countDownTimer(
+          timeToBoss(currentHourInUTC, currentMinute, currentSeconds, offset)
+        );
+      }
+
+      function timeToBoss(
+        currentHour,
+        currentMinute,
+        currentSeconds,
+        timeOffset
+      ) {
+        // kiszámoljuk másodpercben a legközelebbi boss spawnhoz az időt
+        let currentTimeInSeconds =
+          currentHour * 3600 + currentMinute * 60 + currentSeconds;
+        for (let i = 0; i < bossSpawnHours.length; i++) {
+          if (currentTimeInSeconds < bossSpawnHours[i] * 3600) {
+            nextBossDisplay.innerText = `${bossSpawnHours[i] - timeOffset}:00`; // visszarakjuk kliens időbe a displayt
+            if (bossSpawnHours[i] % 8 == 0) {
+              $("#nextboss").addClass("bigBossTimer");
+            }
+            return bossSpawnHours[i] * 3600 - currentTimeInSeconds;
+          }
+        }
+      }
+
+      function countDownTimer(remainingTimeBoss) {
+        // jelenleg boss időkre specializálodott, de általános lajikus timer
+        let hours = parseInt(remainingTimeBoss / 3600);
+        let minutes = parseInt((remainingTimeBoss % 3600) / 60);
+        let seconds = parseInt((minutes % 3600) % 60);
+        let elapsedseconds = 0;
+        setInterval(function () {
+          seconds--;
+          elapsedseconds++;
+          secondsDisplay = seconds;
+          minutesDisplay = minutes;
+          hourDisplay = hours;
+
+          if (minutes == 60) {
+            minutesDisplay = "00";
+          }
+          if (seconds < 10) {
+            if (seconds == 0) {
+              secondsDisplay = "00";
+            } else secondsDisplay = "0" + seconds;
+          }
+          if (minutes < 10) {
+            if (minutes == 0) {
+              minutesDisplay = "00";
+            } else minutesDisplay = "0" + minutes;
+          }
+          if (seconds == 0) {
+            seconds = 60;
+            minutes--;
+            if (minutes == 59) {
+              hours--;
+            }
+          }
+          if (minutes == 5) {
+            let audio = new Audio("boss_reminder.mp3");
+            audio.volume = 0.3;
+            audio.play();
+          }
+          if (minutes == 0) {
+            minutes = 60;
+          }
+          if (hours == 1) {
+            // console.log(`${hourDisplay}:${minutesDisplay}:${secondsDisplay}`);
+            bossTimerDisplay.innerText = `${hourDisplay}:${minutesDisplay}:${secondsDisplay}`;
+          } else {
+            // console.log(`${minutesDisplay}:${secondsDisplay}`);
+            bossTimerDisplay.innerText = `${minutesDisplay}:${secondsDisplay}`;
+          }
+          if (elapsedseconds == remainingTimeBoss * 60) {
+            bossTimers();
+          }
+        }, 1000);
       }
 
       $(document).ready(function () {
         const prevTime = localStorage.getItem("nagykoSpawn");
         setNextTime(prevTime);
+        bossTimers();
       });
     </script>
   </body>

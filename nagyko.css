@@ -18,6 +18,10 @@ label{
     color: black;
 }
 
+.form-label{
+    color: #fff;
+}
+
 .btn{
     font-size: 2.5rem;
 }
@@ -83,4 +87,25 @@ td{
 
 .btn:disabled{
     opacity: 0.3;
+}
+
+#bossSpawn{
+    font-size: 4rem;
+    color: #000;
+    display: inline;
+    float: left;
+}
+
+.bossTimer{
+    margin-left: 15%;
+    color: red;
+}
+
+#nextBoss{
+    color: #fff;
+}
+
+.bigBossTimer::before{
+    color: #000;
+    content: 'Nagy Boss: ';
 }
