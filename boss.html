@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Boss Timer</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://kit.fontawesome.com/29027300e9.js"
+      crossorigin="anonymous"
+    ></script>
+    <link rel="stylesheet" href="nagyko.css" />
+  </head>
+  <body>
+    <img src="./Nagylábú_(jég).png" alt="nagylabu_jeg">
+    <div class="bossDiv">
+      <form>
+        <p class="title">BOSS</p>
+        <div>
+          <label for="alertTime" class="form-label formitem"
+            >Hány perccel spawn előtt legyen emlékeztető?(katt)</label
+          >
+          <select name="alertTime" id="alertTime" class="form-control formitem">
+            <option value="1">1</option>
+            <option value="3">3</option>
+            <option value="5" selected>5</option>
+            <option value="10">10</option>
+            <option value="30">30</option>
+          </select>
+        </div>
+        <!-- <button class="btn btn-outline-primary formitem" id="show">
+          Kövi respawn idők kiírása
+        </button>
+        <button class="btn btn-outline-info formitem" id="reminderButton">
+          Emlékeztető hang aktiválása
+        </button>
+        <p id="alertPara">
+          <i class="fa-solid fa-circle-exclamation" style="color: #ff0000"></i>
+          Emlékeztető jelenleg nem aktív!
+          <i class="fa-solid fa-circle-exclamation" style="color: #ff0000"></i>
+        </p> -->
+      </form>
+      <button class="btn btn-outline-info formitem" id="reminderButton">
+        Emlékeztető hang aktiválása
+      </button>
+      <p class="warningPara" id="alertWarn">
+        <i class="fa-solid fa-circle-exclamation" style="color: #ff0000"></i>
+        Emlékeztető jelenleg nem aktív!
+        <i class="fa-solid fa-circle-exclamation" style="color: #ff0000"></i>
+      </p>
+
+      <div id="nextSpawnTimes">
+        <table class="table table-hover table-striped">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Kövi spawn</th>
+            </tr>
+          </thead>
+          <tbody id="nextSpawnTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://code.jquery.com/jquery-3.7.1.js"
+      integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      const bossSpawnHours = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24];
+      localStorage.setItem("clientOffset", 0);
+      var wantReminder;
+      var nextSpawnTable = $("#nextSpawnTable");
+      let i = 0;
+
+      const reminderB = document.getElementById("reminderButton");
+
+      reminderB.addEventListener("click", function (e) {
+        e.preventDefault();
+        let audio = new Audio("boss_reminder.mp3");
+        audio.volume = 0.3;
+        audio.play();
+
+        setTimeout(function () {
+          if (confirm("Legyen emlékeztető hang spawn előtt?")) {
+            wantReminder = true;
+            $("#alertWarn").fadeOut();
+            $("#reminderButton").fadeOut();
+            console.log(wantReminder);
+          } else {
+            wantReminder = false;
+            console.log(wantReminder);
+          }
+        }, 1000);
+      });
+
+      if (localStorage.getItem("clientOffset") == 0) {
+        var clientDate = new Date();
+        var clientOffset = clientDate.getTimezoneOffset();
+        clientOffset = clientOffset / 60;
+        localStorage.setItem("clientOffset", clientOffset);
+      }
+
+      bossSpawnHours.forEach((spawnHour) => {
+        i++;
+        nextSpawnTable.append(`<tr id="${i}" class="trTime" data-time=${
+          spawnHour + clientOffset
+        }>
+            <th scope="row">${i}</th>
+              <td><span style="color: #fff;">${spawnHour + clientOffset}:00</span></td>
+            </tr>`);
+        console.log("testfromeach");
+      });
+
+      setInterval(manageDesign, 1000 * 60);
+      function manageDesign() {
+        console.log("test");
+        function remainingTimeStone(j) {
+          clientDate = new Date();
+          var clientTime = clientDate.toTimeString().split(" ")[0].split(":");
+          var clientHour = parseInt(clientTime[0]);
+          console.log(clientHour);
+
+          if (clientHour == 0) {
+            clientHour = 24;
+          }
+          var clientMinute = parseInt(clientTime[1]);
+          var clientTime = clientHour * 60 + clientMinute;
+
+          //   console.log($(".trTime")[i].childNodes[3].innerText);
+          var thisTime = $(".trTime")[j].childNodes[3].innerText.split(":");
+
+          var closestHour = parseInt(thisTime[0]);
+          if (closestHour == 0) {
+            closestHour = 24;
+          }
+          var closestMinute = parseInt(thisTime[1]);
+
+          var closestTime = closestHour * 60 + closestMinute;
+
+          return closestTime - clientTime;
+        }
+
+        function colorTable(upTo, currentTime) {
+          for (let i = 0; i <= upTo; i++) {
+            $(`#${i}`).removeClass("incomingSpawn").addClass("pastSpawn");
+          }
+
+          $(`#${currentTime}`)
+            .removeClass("pastSpawn")
+            .addClass("incomingSpawn");
+
+          for (let i = upTo + 2; i <= 15; i++) {
+            $(`#${i}`).removeClass("incomingSpawn").removeClass("pastSpawn");
+          }
+        }
+
+        function colorTable(upTo, currentTime) {
+          for (let i = 0; i <= upTo; i++) {
+            $(`#${i}`).removeClass("incomingSpawn").addClass("pastSpawn");
+          }
+
+          $(`#${currentTime}`)
+            .removeClass("pastSpawn")
+            .addClass("incomingSpawn");
+
+          for (let i = upTo + 2; i <= 15; i++) {
+            $(`#${i}`).removeClass("incomingSpawn").removeClass("pastSpawn");
+          }
+        }
+
+        for (let j = 0; j < 12; j++) {
+          // emlékeztető bekapcsolása, működése, lehet rajta még csiszolni
+          if (remainingTimeStone(j) <= 120 && remainingTimeStone(j) > 0) {
+            var reminderTime = $("#alertTime option:selected").val();
+            console.log("test from from remianing", remainingTimeStone(j));
+
+            colorTable(j, j + 1);
+            if (remainingTimeStone(j) == reminderTime && wantReminder == true) {
+              let audio = new Audio("boss_reminder.mp3");
+              audio.volume = 0.3;
+              setTimeout(function () {
+                alert(`BOSS ${reminderTime} PERC MÚLVA`);
+              }, 3000);
+              audio.play();
+            }
+          }
+        }
+      }
+
+      setTimeout(manageDesign, 5000);
+    </script>
+  </body>
+</html>

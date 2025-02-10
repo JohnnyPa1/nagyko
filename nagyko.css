@@ -2,6 +2,13 @@ body{
     background-color: #213555;
 }
 
+.title{
+    font-size: 5rem;
+    font-family: 'Courier New', Courier, monospace;
+    text-decoration: dashed;
+    color: antiquewhite;
+    font-style: italic;
+}
 
 .form-control{
     width: 15rem;
@@ -108,4 +115,28 @@ td{
 .bigBossTimer::before{
     color: #000;
     content: 'Nagy Boss: ';
+}
+
+.bossDiv{
+    max-width: fit-content;
+    margin: auto;
+    text-align: center;
+}
+
+.welcomeDiv{
+    max-width: fit-content;
+    margin: auto;
+    text-align: center;
+    .btn{
+        display: block;
+        margin: auto;
+        margin-top: 10%;
+        font-size: 4rem;
+    }
+}
+
+img{
+    position: absolute;
+    width: 30%;
+    top: 20%;
 }
